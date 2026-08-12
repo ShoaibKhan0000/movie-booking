@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CinePass | Movie Booking Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slateNight: '#0f172a',
+                        slateCard: '#1e293b',
+                        cineRed: '#e11d48',
+                        neonBlue: '#38bdf8'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body class="bg-slateNight text-slate-100">
+    <header class="sticky top-0 z-40">
+        <nav class="glass-nav border-b border-white/10">
+            <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 lg:px-8">
+                <div class="flex items-center gap-2 text-2xl font-bold tracking-wide">
+                    <span class="text-cineRed">Cine</span><span class="text-neonBlue">Pass</span>
+                </div>
+                <div class="hidden flex-1 items-center justify-center md:flex">
+                    <label class="relative w-full max-w-md">
+                        <span class="sr-only">Search movies</span>
+                        <input id="movie-search" type="text" placeholder="Search movies, genres, languages..." class="w-full rounded-full border border-white/20 bg-slateCard/70 px-4 py-2 text-sm text-slate-100 placeholder:text-slate-400 focus:border-neonBlue focus:outline-none" />
+                    </label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select class="rounded-full border border-white/20 bg-slateCard/70 px-3 py-2 text-sm text-slate-100 focus:border-neonBlue focus:outline-none">
+                        <option>Delhi NCR</option>
+                    </select>
+                    <button class="rounded-full bg-cineRed px-4 py-2 text-sm font-medium transition hover:bg-rose-500">Login / Profile</button>
+                </div>
+            </div>
+            <div class="px-4 pb-4 md:hidden">
+                <input id="movie-search-mobile" type="text" placeholder="Search movies..." class="w-full rounded-full border border-white/20 bg-slateCard/70 px-4 py-2 text-sm text-slate-100 placeholder:text-slate-400 focus:border-neonBlue focus:outline-none" />
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section relative overflow-hidden">
+            <div class="hero-overlay absolute inset-0"></div>
+            <div class="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-20 lg:px-8">
+                <span class="inline-flex w-max items-center rounded-full border border-neonBlue/40 bg-neonBlue/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-neonBlue">Featured Release</span>
+                <h1 class="text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">Project Kalki</h1>
+                <p class="max-w-2xl text-sm text-slate-300 sm:text-base">Sci-Fi · Action · Mythology Revival · IMAX 3D</p>
+                <div class="flex items-center gap-3 text-sm text-slate-200">
+                    <span class="rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 text-amber-300">⭐ 8.8/10</span>
+                    <span class="rounded-full border border-white/20 bg-slateCard/60 px-3 py-1">2h 38m</span>
+                    <span class="rounded-full border border-white/20 bg-slateCard/60 px-3 py-1">Hindi · Telugu · Tamil</span>
+                </div>
+                <a href="#now-showing" class="book-hero-btn mt-2 inline-flex w-max items-center rounded-full bg-cineRed px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-rose-500">Book Ticket</a>
+            </div>
+        </section>
+
+        <section id="now-showing" class="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+            <div class="mb-8 flex items-end justify-between gap-4">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-neonBlue">Now Showing</p>
+                    <h2 class="text-3xl font-bold">Choose Your Movie</h2>
+                </div>
+                <p class="text-sm text-slate-400">Tap any card to start booking instantly.</p>
+            </div>
+            <div id="movie-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"></div>
+        </section>
+
+        <section id="booking-section" class="mx-auto hidden max-w-7xl px-4 pb-16 lg:px-8">
+            <div class="grid gap-8 lg:grid-cols-[2fr,1fr]">
+                <div class="rounded-2xl border border-white/10 bg-slateCard/80 p-6 shadow-2xl">
+                    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-neonBlue">Seat Selection</p>
+                            <h3 id="selected-movie-heading" class="text-2xl font-semibold">Select a movie</h3>
+                        </div>
+                        <div class="text-sm text-slate-300">
+                            <label for="showtime-select" class="mr-2">Date & Time:</label>
+                            <select id="showtime-select" class="rounded-lg border border-white/20 bg-slateNight px-3 py-2 text-sm focus:border-neonBlue focus:outline-none">
+                                <option value="12 Aug, 07:30 PM">12 Aug, 07:30 PM</option>
+                                <option value="12 Aug, 10:45 PM">12 Aug, 10:45 PM</option>
+                                <option value="13 Aug, 04:20 PM">13 Aug, 04:20 PM</option>
+                                <option value="13 Aug, 08:00 PM">13 Aug, 08:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cinema-screen-wrap mb-8">
+                        <div class="cinema-screen">Cinema Screen</div>
+                    </div>
+
+                    <div id="seat-grid" class="seat-grid" aria-label="Seat selection layout"></div>
+
+                    <div class="mt-8 flex flex-wrap gap-4 text-sm text-slate-300">
+                        <span class="flex items-center gap-2"><span class="seat seat-sm available"></span>Available</span>
+                        <span class="flex items-center gap-2"><span class="seat seat-sm selected"></span>Selected</span>
+                        <span class="flex items-center gap-2"><span class="seat seat-sm occupied"></span>Occupied</span>
+                    </div>
+                </div>
+
+                <aside class="rounded-2xl border border-white/10 bg-slateCard/90 p-6 shadow-2xl">
+                    <p class="text-xs uppercase tracking-[0.25em] text-neonBlue">Booking Summary</p>
+                    <h3 id="summary-movie-title" class="mt-2 text-xl font-semibold">No movie selected</h3>
+                    <p id="summary-datetime" class="mt-1 text-sm text-slate-300">Date & Time: 12 Aug, 07:30 PM</p>
+
+                    <div class="mt-4 rounded-xl border border-white/10 bg-slateNight/60 p-4">
+                        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Selected Seats</p>
+                        <p id="selected-seats-display" class="mt-2 min-h-[2rem] text-sm text-slate-200">None</p>
+                    </div>
+
+                    <dl class="mt-6 space-y-3 text-sm">
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-300">Base Price</dt>
+                            <dd id="base-price">₹0.00</dd>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-300">Convenience + GST (18%)</dt>
+                            <dd id="tax-fee">₹0.00</dd>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-white/10 pt-3 text-base font-semibold">
+                            <dt>Total Price</dt>
+                            <dd id="total-price" class="text-neonBlue">₹0.00</dd>
+                        </div>
+                    </dl>
+
+                    <button id="checkout-btn" class="mt-6 w-full rounded-xl bg-cineRed px-4 py-3 text-sm font-semibold uppercase tracking-wide transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-50" disabled>Confirm &amp; Pay</button>
+                    <p id="checkout-note" class="mt-3 text-xs text-slate-400">Select at least one seat to proceed with checkout.</p>
+                </aside>
+            </div>
+        </section>
+
+        <section class="mx-auto max-w-7xl px-4 pb-16 lg:px-8">
+            <div class="mb-6 flex items-end justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-neonBlue">Admin Analytics Preview</p>
+                    <h2 class="text-3xl font-bold">Weekly Booking Insights</h2>
+                </div>
+            </div>
+            <div class="grid gap-6 md:grid-cols-3">
+                <article class="rounded-2xl border border-white/10 bg-slateCard/80 p-5">
+                    <p class="text-sm text-slate-400">Total Tickets Sold</p>
+                    <p id="kpi-tickets" class="mt-2 text-3xl font-bold text-neonBlue">0</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-slateCard/80 p-5">
+                    <p class="text-sm text-slate-400">Monthly Revenue</p>
+                    <p id="kpi-revenue" class="mt-2 text-3xl font-bold text-cineRed">₹0</p>
+                </article>
+                <article class="rounded-2xl border border-white/10 bg-slateCard/80 p-5">
+                    <p class="text-sm text-slate-400">Active Users</p>
+                    <p id="kpi-users" class="mt-2 text-3xl font-bold text-white">0</p>
+                </article>
+            </div>
+            <div class="mt-6 rounded-2xl border border-white/10 bg-slateCard/80 p-4 sm:p-6">
+                <canvas id="booking-trends-chart" height="120" aria-label="Weekly booking trends chart" role="img"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-white/10 bg-slateNight/95">
+        <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+            <p>© 2026 CinePass · Full-Stack Ready Movie Booking Experience.</p>
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/ShoaibKhan0000" target="_blank" rel="noopener noreferrer" class="hover:text-neonBlue">GitHub</a>
+                <a href="https://www.linkedin.com/in/" target="_blank" rel="noopener noreferrer" class="hover:text-neonBlue">LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/chart-config.js"></script>
+</body>
+</html>

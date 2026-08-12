@@ -1,44 +1,95 @@
-# CineTicket (Movie Booking)
+# CinePass — Full-Stack-Ready Movie Booking Web Application
 
-A PHP + MySQL movie booking app with user authentication, movie listings, showtime selection, seat booking, ticket generation, and a lightweight admin panel.
+CinePass is a modern movie booking application structure with a polished frontend experience (Tailwind + custom CSS + Chart.js) and a PHP/MySQL backend foundation already present in this repository.
 
-## Tech Stack
+## What This Refactor Adds
 
-- PHP (server-rendered pages)
-- MySQL (via PDO)
-- Bootstrap 5 + Font Awesome (CDN)
+- New dedicated frontend template at `/templates/index.html`
+- New static asset pipeline:
+  - `/static/css/styles.css`
+  - `/static/js/app.js`
+  - `/static/js/chart-config.js`
+- Responsive movie discovery and booking flow:
+  - dynamic movie cards
+  - interactive seat map (A–E rows, 8 seats each)
+  - seat availability states (available/selected/occupied)
+  - real-time booking summary and pricing with 18% tax/fee
+  - checkout enable/disable state validation
+- Admin analytics preview section with KPI cards and a dark-mode Chart.js line chart
 
-## Project Structure
+## Architecture Breakdown
 
-- `/config/db.php` – DB connection and PDO setup
-- `/includes/app.php` – shared helpers (session, redirects, validation, flash messages)
-- `/includes/header.php`, `/includes/footer.php` – shared layout
-- `/assets/css/app.css` – global UI styling
-- `/assets/js/app.js` – global UI micro-interactions
-- `/admin/index.php` – admin movie management
+### Frontend Layer
 
-## Setup
+- **Template:** `templates/index.html`
+- **Utility Styling:** Tailwind CSS via CDN
+- **Custom Styling:** `static/css/styles.css`
+- **UI Logic & State:** `static/js/app.js`
+- **Analytics Chart Logic:** `static/js/chart-config.js`
 
-1. Clone repository and place it under your local PHP server root.
-2. Create a MySQL database and required tables (`users`, `movies`, `shows`, `bookings`).
-3. Configure environment variables (or use defaults in local dev):
-   - Copy values from `.env.example` into your runtime environment.
-4. Ensure poster uploads directory exists:
-   - `assets/images/` (created automatically by admin upload when needed).
+### Existing Backend Layer (Repository)
 
-## Run
+The repository still includes the existing PHP stack for full-stack expansion:
 
-- Serve with Apache/XAMPP/WAMP, or PHP built-in server:
-  ```bash
-  php -S localhost:8000
-  ```
-- Open `http://localhost:8000/index.php`
+- `config/db.php` — PDO DB setup
+- `includes/app.php` — app/session helper utilities
+- multiple PHP pages for auth, movies, seats, bookings, ticketing, and admin
 
-## Notes on Recent Modernization
+This keeps CinePass ready to integrate the new frontend screens with current backend endpoints.
 
-- Modernized shared styling and responsive polish via `assets/css/app.css`.
-- Added consistent micro-interactions for form submissions via `assets/js/app.js`.
-- Strengthened backend validation for IDs, seats, and booking flow.
-- Added transaction-safe booking to reduce double-booking race conditions.
-- Improved admin poster upload validation (MIME/type-safe naming).
-- Kept compatibility for old route `movie_details.php` by redirecting to `movie-details.php`.
+## UI Features Implemented
+
+1. **Glassmorphism Navbar** with branding, search, location selector, and login/profile CTA
+2. **Hero Section** with featured movie spotlight and smooth-scroll “Book Ticket” trigger
+3. **Now Showing Grid** generated from JavaScript dataset
+4. **Interactive Seat Booking Section**
+   - curved cinema screen with neon glow
+   - dynamic seat rendering
+   - occupied seat locking
+5. **Dynamic Booking Summary**
+   - selected movie + showtime
+   - selected seat list
+   - base + 18% convenience/GST + total
+6. **Admin Analytics Preview**
+   - total tickets sold
+   - monthly revenue
+   - active users
+   - weekly booking trends line chart
+7. **Footer** with project branding and profile links
+
+## How to Run
+
+### Frontend-only preview
+
+From repository root, run:
+
+```bash
+php -S localhost:8000
+```
+
+Open:
+
+- `http://localhost:8000/templates/index.html`
+
+### Existing PHP app routes (optional)
+
+- `http://localhost:8000/index.php`
+
+## Data Model in Frontend Script
+
+Movies are defined in `static/js/app.js` with:
+
+- `id`
+- `title`
+- `genre`
+- `price`
+- `image`
+
+Additional metadata like `language` is included for richer UI filtering.
+
+## Next Integration Steps (Backend Wiring)
+
+- persist bookings to database tables through PHP endpoints
+- replace static occupied seats with DB-driven seat locks per showtime
+- connect KPI and trend chart values to admin analytics queries
+- add payment gateway flow to replace local booking confirmation alert
