@@ -1,0 +1,184 @@
+:root {
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --accent-primary: #e11d48;
+    --accent-secondary: #38bdf8;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at top, #17233d 0%, var(--bg-dark) 40%, #070b15 100%);
+    color: #f8fafc;
+}
+
+.glass-nav {
+    background: rgba(15, 23, 42, 0.55);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+}
+
+.hero-section {
+    min-height: 72vh;
+    background: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+}
+
+.hero-overlay {
+    background: linear-gradient(100deg, rgba(15, 23, 42, 0.85) 30%, rgba(15, 23, 42, 0.5) 70%, rgba(15, 23, 42, 0.9) 100%);
+}
+
+.book-hero-btn {
+    box-shadow: 0 10px 28px rgba(225, 29, 72, 0.45);
+}
+
+#movie-grid .movie-card {
+    background: linear-gradient(170deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 1rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+#movie-grid .movie-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(56, 189, 248, 0.65);
+    box-shadow: 0 20px 36px rgba(8, 18, 35, 0.5);
+}
+
+.movie-poster {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+}
+
+.cinema-screen-wrap {
+    padding: 0 0.75rem;
+}
+
+.cinema-screen {
+    position: relative;
+    margin: 0 auto;
+    width: min(560px, 100%);
+    height: 52px;
+    border: 2px solid rgba(56, 189, 248, 0.8);
+    border-bottom: none;
+    border-radius: 280px 280px 0 0;
+    background: radial-gradient(circle at 50% 110%, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0.06) 55%, transparent 72%);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    font-size: 0.72rem;
+    line-height: 52px;
+    color: rgba(224, 242, 254, 0.85);
+    box-shadow:
+        0 -10px 35px rgba(56, 189, 248, 0.25),
+        inset 0 -12px 18px rgba(56, 189, 248, 0.22);
+}
+
+.cinema-screen::after {
+    content: '';
+    position: absolute;
+    inset: -14px 20px auto;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(56, 189, 248, 0.28);
+    filter: blur(18px);
+}
+
+.seat-grid {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.seat-row {
+    display: grid;
+    grid-template-columns: auto repeat(8, minmax(0, 1fr));
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.row-label {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.seat {
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 0.55rem;
+    min-height: 2.25rem;
+    background: rgba(51, 65, 85, 0.45);
+    color: #e2e8f0;
+    font-size: 0.74rem;
+    font-weight: 600;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
+}
+
+button.seat {
+    cursor: pointer;
+}
+
+button.seat:hover:not(.occupied) {
+    transform: translateY(-2px);
+}
+
+.seat.available {
+    border-color: rgba(148, 163, 184, 0.45);
+    background: rgba(51, 65, 85, 0.5);
+}
+
+.seat.selected {
+    border-color: rgba(56, 189, 248, 0.9);
+    background: rgba(56, 189, 248, 0.35);
+    color: #f0f9ff;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.seat.occupied {
+    border-color: rgba(225, 29, 72, 0.7);
+    background: rgba(225, 29, 72, 0.3);
+    color: rgba(255, 228, 230, 0.8);
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+.seat-sm {
+    width: 1.2rem;
+    min-height: 1.2rem;
+    display: inline-block;
+}
+
+.fade-slide {
+    animation: fadeSlide 0.4s ease;
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 640px) {
+    .seat-row {
+        gap: 0.35rem;
+    }
+
+    .seat {
+        min-height: 2rem;
+        font-size: 0.68rem;
+    }
+}
