@@ -1,316 +1,271 @@
 (() => {
-    const movies = [
-        {
-            id: 'kalki-2898',
-            title: 'Project Kalki',
-            genre: 'Sci-Fi · Action',
-            language: 'Hindi, Telugu',
-            price: 320,
-            image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=700&q=80'
-        },
-        {
-            id: 'shadow-protocol',
-            title: 'Shadow Protocol',
-            genre: 'Thriller · Mystery',
-            language: 'Hindi, English',
-            price: 260,
-            image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=700&q=80'
-        },
-        {
-            id: 'oceanic-heist',
-            title: 'Oceanic Heist',
-            genre: 'Crime · Adventure',
-            language: 'English',
-            price: 290,
-            image: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=700&q=80'
-        },
-        {
-            id: 'satrangi-ishq',
-            title: 'Satrangi Ishq',
-            genre: 'Romance · Drama',
-            language: 'Hindi',
-            price: 220,
-            image: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=700&q=80'
-        },
-        {
-            id: 'iron-raaga',
-            title: 'Iron Raaga',
-            genre: 'Action · Musical',
-            language: 'Tamil, Hindi',
-            price: 250,
-            image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=700&q=80'
-        },
-        {
-            id: 'quantum-yatra',
-            title: 'Quantum Yatra',
-            genre: 'Sci-Fi · Fantasy',
-            language: 'Hindi, Kannada',
-            price: 310,
-            image: 'https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=700&q=80'
-        }
-    ];
-
-    const occupiedByMovie = {
-        'kalki-2898': ['A4', 'A5', 'B1', 'C7', 'D3', 'E6'],
-        'shadow-protocol': ['A1', 'B2', 'B6', 'C3', 'D8'],
-        'oceanic-heist': ['A3', 'A7', 'C2', 'D4', 'E1', 'E2'],
-        'satrangi-ishq': ['B4', 'B5', 'C6', 'D1', 'E8'],
-        'iron-raaga': ['A2', 'B8', 'C1', 'D2', 'D7', 'E4'],
-        'quantum-yatra': ['A6', 'B3', 'C4', 'C5', 'E3', 'E7']
-    };
-
-    const state = {
-        selectedMovie: null,
-        selectedSeats: [],
-        occupiedSeats: [],
-        weeklyTrend: [108, 136, 122, 154, 176, 168, 201],
-        baseKpi: {
-            tickets: 4276,
-            revenue: 1284000,
-            users: 2490
-        }
-    };
-
-    const dom = {
-        movieGrid: document.getElementById('movie-grid'),
-        bookingSection: document.getElementById('booking-section'),
-        selectedMovieHeading: document.getElementById('selected-movie-heading'),
-        summaryMovieTitle: document.getElementById('summary-movie-title'),
-        summaryDatetime: document.getElementById('summary-datetime'),
-        showtimeSelect: document.getElementById('showtime-select'),
-        seatGrid: document.getElementById('seat-grid'),
-        selectedSeatsDisplay: document.getElementById('selected-seats-display'),
-        basePrice: document.getElementById('base-price'),
-        taxFee: document.getElementById('tax-fee'),
-        totalPrice: document.getElementById('total-price'),
-        checkoutBtn: document.getElementById('checkout-btn'),
-        checkoutNote: document.getElementById('checkout-note'),
-        searchDesktop: document.getElementById('movie-search'),
-        searchMobile: document.getElementById('movie-search-mobile'),
-        kpiTickets: document.getElementById('kpi-tickets'),
-        kpiRevenue: document.getElementById('kpi-revenue'),
-        kpiUsers: document.getElementById('kpi-users')
-    };
-
-    const formatCurrency = (value) =>
+    const formatCurrency = (amount) =>
         new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: 'INR',
-            minimumFractionDigits: 2
-        }).format(value);
+            minimumFractionDigits: 2,
+        }).format(amount);
 
-    const formatWholeCurrency = (value) =>
-        new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
-        }).format(value);
+    const attachHomeMovies = () => {
+        const movieGrid = document.getElementById('movie-grid');
+        const searchInput = document.getElementById('movie-search');
+        const locationFilter = document.getElementById('location-filter');
 
-    const getSearchValue = () => (dom.searchDesktop?.value || dom.searchMobile?.value || '').trim().toLowerCase();
-
-    const renderMovieCards = () => {
-        const query = getSearchValue();
-        const visibleMovies = movies.filter((movie) =>
-            [movie.title, movie.genre, movie.language].join(' ').toLowerCase().includes(query)
-        );
-
-        dom.movieGrid.innerHTML = '';
-
-        if (!visibleMovies.length) {
-            dom.movieGrid.innerHTML = '<p class="col-span-full rounded-xl border border-white/10 bg-slateCard/70 p-6 text-center text-slate-300">No matching movies found.</p>';
+        if (!movieGrid || !searchInput || !locationFilter) {
             return;
         }
 
-        visibleMovies.forEach((movie) => {
-            const card = document.createElement('article');
-            card.className = 'movie-card';
-            card.setAttribute('role', 'button');
-            card.setAttribute('tabindex', '0');
-            card.dataset.movieId = movie.id;
-            card.innerHTML = `
-                <img src="${movie.image}" alt="${movie.title} poster" class="movie-poster" loading="lazy" />
-                <div class="p-4">
-                    <h3 class="text-lg font-semibold">${movie.title}</h3>
-                    <p class="mt-1 text-xs text-slate-300">${movie.genre}</p>
-                    <p class="mt-1 text-xs text-slate-400">${movie.language}</p>
-                    <div class="mt-3 flex items-center justify-between">
-                        <span class="rounded-full border border-neonBlue/40 bg-neonBlue/10 px-3 py-1 text-xs text-neonBlue">${formatCurrency(movie.price)}</span>
-                        <button class="rounded-full bg-cineRed px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">Select</button>
-                    </div>
-                </div>
-            `;
+        const apiUrl = movieGrid.dataset.api;
 
-            const selectMovie = () => setSelectedMovie(movie.id);
-            card.addEventListener('click', selectMovie);
-            card.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    selectMovie();
-                }
+        const renderMovies = (movies) => {
+            movieGrid.innerHTML = '';
+
+            if (!movies.length) {
+                movieGrid.innerHTML = '<div class="col-12"><div class="alert alert-info">No movies found for this filter.</div></div>';
+                return;
+            }
+
+            movies.forEach((movie) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-3 mb-4';
+                col.innerHTML = `
+                    <article class="movie-card h-100">
+                        <img src="${movie.poster_url}" alt="${movie.title} poster" class="movie-poster" loading="lazy" />
+                        <div class="p-3">
+                            <h3 class="h5 mb-1">${movie.title}</h3>
+                            <p class="small text-secondary mb-1">${movie.genre}</p>
+                            <p class="small text-secondary mb-2">${movie.duration} · ${movie.language}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info-subtle text-info">₹${Number(movie.ticket_price).toFixed(0)}</span>
+                                <a class="btn btn-danger btn-sm" href="movie_details.php?id=${movie.id}">View Shows</a>
+                            </div>
+                        </div>
+                    </article>
+                `;
+                movieGrid.appendChild(col);
             });
-            dom.movieGrid.appendChild(card);
+        };
+
+        const fetchMovies = async () => {
+            const params = new URLSearchParams();
+            const search = searchInput.value.trim();
+            const location = locationFilter.value;
+
+            if (search) params.append('search', search);
+            if (location) params.append('location', location);
+
+            try {
+                const res = await fetch(`${apiUrl}?${params.toString()}`);
+                const data = await res.json();
+                if (data.success) {
+                    renderMovies(data.movies || []);
+                }
+            } catch (err) {
+                movieGrid.innerHTML = '<div class="col-12"><div class="alert alert-danger">Unable to load movies right now.</div></div>';
+            }
+        };
+
+        let searchTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(fetchMovies, 250);
         });
+        locationFilter.addEventListener('change', fetchMovies);
     };
 
-    const renderSeatLayout = () => {
+    const attachBooking = () => {
+        const bookingRoot = document.querySelector('[data-page="booking"]');
+        if (!bookingRoot) {
+            return;
+        }
+
+        const showId = bookingRoot.dataset.showId;
+        const seatApi = bookingRoot.dataset.seatApi;
+        const bookingApi = bookingRoot.dataset.bookingApi;
+        const checkoutUrl = bookingRoot.dataset.checkoutUrl;
+
+        const seatGrid = document.getElementById('seat-grid');
+        const selectedSeatsDisplay = document.getElementById('selected-seats-display');
+        const basePriceEl = document.getElementById('base-price');
+        const gstPriceEl = document.getElementById('gst-price');
+        const totalPriceEl = document.getElementById('total-price');
+        const reserveBtn = document.getElementById('reserve-seats-btn');
+        const seatError = document.getElementById('seat-error');
+
+        const priceText = (document.body.textContent.match(/Base Price:\s*₹([\d,.]+)/) || [])[1] || '0';
+        const baseTicketPrice = Number(priceText.replace(/,/g, '')) || 0;
+        const state = { occupied: [], selected: [] };
+
         const rows = ['A', 'B', 'C', 'D', 'E'];
         const seatsPerRow = 8;
 
-        dom.seatGrid.innerHTML = '';
+        const sortSeats = (seats) => seats.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-        rows.forEach((row) => {
-            const rowEl = document.createElement('div');
-            rowEl.className = 'seat-row';
+        const updateSummary = () => {
+            const seatCount = state.selected.length;
+            const base = seatCount * baseTicketPrice;
+            const gst = base * 0.18;
+            const total = base + gst;
 
-            const label = document.createElement('span');
-            label.className = 'row-label';
-            label.textContent = row;
-            rowEl.appendChild(label);
+            selectedSeatsDisplay.textContent = seatCount ? state.selected.join(', ') : 'None';
+            basePriceEl.textContent = formatCurrency(base);
+            gstPriceEl.textContent = formatCurrency(gst);
+            totalPriceEl.textContent = formatCurrency(total);
+            reserveBtn.disabled = seatCount === 0;
+        };
 
-            for (let seatNum = 1; seatNum <= seatsPerRow; seatNum += 1) {
-                const seatLabel = `${row}${seatNum}`;
-                const isOccupied = state.occupiedSeats.includes(seatLabel);
-                const isSelected = state.selectedSeats.includes(seatLabel);
+        const renderSeats = () => {
+            seatGrid.innerHTML = '';
+            rows.forEach((row) => {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'seat-row';
 
-                const seat = document.createElement('button');
-                seat.type = 'button';
-                seat.className = `seat ${isOccupied ? 'occupied' : isSelected ? 'selected' : 'available'}`;
-                seat.textContent = seatNum;
-                seat.dataset.seatLabel = seatLabel;
+                const rowLabel = document.createElement('span');
+                rowLabel.className = 'row-label';
+                rowLabel.textContent = row;
+                rowEl.appendChild(rowLabel);
 
-                if (isOccupied) {
-                    seat.disabled = true;
-                    seat.setAttribute('aria-disabled', 'true');
-                    seat.title = `${seatLabel} occupied`;
-                } else {
-                    seat.title = `${seatLabel} available`;
-                    seat.addEventListener('click', () => toggleSeat(seatLabel));
+                for (let i = 1; i <= seatsPerRow; i += 1) {
+                    const seatNo = `${row}${i}`;
+                    const seatBtn = document.createElement('button');
+                    seatBtn.type = 'button';
+                    seatBtn.className = 'seat';
+                    seatBtn.textContent = i;
+                    seatBtn.dataset.seatNo = seatNo;
+
+                    if (state.occupied.includes(seatNo)) {
+                        seatBtn.classList.add('occupied');
+                        seatBtn.disabled = true;
+                    } else if (state.selected.includes(seatNo)) {
+                        seatBtn.classList.add('selected');
+                    } else {
+                        seatBtn.classList.add('available');
+                    }
+
+                    seatBtn.addEventListener('click', () => {
+                        const idx = state.selected.indexOf(seatNo);
+                        if (idx >= 0) {
+                            state.selected.splice(idx, 1);
+                        } else {
+                            state.selected.push(seatNo);
+                            sortSeats(state.selected);
+                        }
+                        renderSeats();
+                        updateSummary();
+                    });
+
+                    rowEl.appendChild(seatBtn);
                 }
 
-                rowEl.appendChild(seat);
-            }
-
-            dom.seatGrid.appendChild(rowEl);
-        });
-    };
-
-    const updateBookingSummary = () => {
-        const seatCount = state.selectedSeats.length;
-        const pricePerSeat = state.selectedMovie?.price || 0;
-        const base = seatCount * pricePerSeat;
-        const tax = base * 0.18;
-        const total = base + tax;
-
-        dom.selectedSeatsDisplay.textContent = seatCount ? state.selectedSeats.join(', ') : 'None';
-        dom.basePrice.textContent = formatCurrency(base);
-        dom.taxFee.textContent = formatCurrency(tax);
-        dom.totalPrice.textContent = formatCurrency(total);
-
-        dom.checkoutBtn.disabled = seatCount === 0 || !state.selectedMovie;
-        dom.checkoutNote.textContent = dom.checkoutBtn.disabled
-            ? 'Select at least one seat to proceed with checkout.'
-            : 'Great! You can now continue to secure payment.';
-
-        updateKpiCards(seatCount, total);
-    };
-
-    const updateKpiCards = (addedTickets = 0, addedRevenue = 0) => {
-        const tickets = state.baseKpi.tickets + addedTickets;
-        const revenue = state.baseKpi.revenue + Math.round(addedRevenue);
-        const users = state.baseKpi.users + (addedTickets > 0 ? 1 : 0);
-
-        dom.kpiTickets.textContent = new Intl.NumberFormat('en-IN').format(tickets);
-        dom.kpiRevenue.textContent = formatWholeCurrency(revenue);
-        dom.kpiUsers.textContent = new Intl.NumberFormat('en-IN').format(users);
-    };
-
-    const toggleSeat = (seatLabel) => {
-        if (!state.selectedMovie) {
-            return;
-        }
-
-        const index = state.selectedSeats.indexOf(seatLabel);
-        if (index >= 0) {
-            state.selectedSeats.splice(index, 1);
-        } else {
-            state.selectedSeats.push(seatLabel);
-            state.selectedSeats.sort((a, b) => {
-                const rowDiff = a.charCodeAt(0) - b.charCodeAt(0);
-                if (rowDiff !== 0) {
-                    return rowDiff;
-                }
-                return Number(a.slice(1)) - Number(b.slice(1));
-            });
-        }
-
-        renderSeatLayout();
-        updateBookingSummary();
-    };
-
-    const setSelectedMovie = (movieId) => {
-        const movie = movies.find((item) => item.id === movieId);
-        if (!movie) {
-            return;
-        }
-
-        state.selectedMovie = movie;
-        state.selectedSeats = [];
-        state.occupiedSeats = occupiedByMovie[movieId] || [];
-
-        dom.selectedMovieHeading.textContent = `${movie.title} · ${movie.genre}`;
-        dom.summaryMovieTitle.textContent = movie.title;
-        dom.summaryDatetime.textContent = `Date & Time: ${dom.showtimeSelect.value}`;
-
-        dom.bookingSection.classList.remove('hidden');
-        dom.bookingSection.classList.add('fade-slide');
-
-        renderSeatLayout();
-        updateBookingSummary();
-
-        window.requestAnimationFrame(() => {
-            dom.bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    };
-
-    const bindSearchSync = () => {
-        const syncSearchInput = (source, target) => {
-            if (!source || !target) {
-                return;
-            }
-            source.addEventListener('input', () => {
-                target.value = source.value;
-                renderMovieCards();
+                seatGrid.appendChild(rowEl);
             });
         };
 
-        syncSearchInput(dom.searchDesktop, dom.searchMobile);
-        syncSearchInput(dom.searchMobile, dom.searchDesktop);
-    };
-
-    const bindEvents = () => {
-        dom.showtimeSelect.addEventListener('change', () => {
-            dom.summaryDatetime.textContent = `Date & Time: ${dom.showtimeSelect.value}`;
-        });
-
-        dom.checkoutBtn.addEventListener('click', () => {
-            if (!state.selectedMovie || !state.selectedSeats.length) {
-                return;
-            }
-
-            alert(`Booking confirmed for ${state.selectedMovie.title} (${dom.showtimeSelect.value})\nSeats: ${state.selectedSeats.join(', ')}`);
-        });
-    };
-
-    const initialize = () => {
-        renderMovieCards();
-        updateKpiCards();
-        bindSearchSync();
-        bindEvents();
-
-        window.cinePassState = {
-            weeklyTrend: [...state.weeklyTrend]
+        const loadOccupiedSeats = async () => {
+            const res = await fetch(`${seatApi}?show_id=${encodeURIComponent(showId)}`);
+            const data = await res.json();
+            state.occupied = (data.occupied_seats || []).map((x) => String(x));
+            renderSeats();
+            updateSummary();
         };
+
+        reserveBtn.addEventListener('click', async () => {
+            seatError.textContent = '';
+            reserveBtn.disabled = true;
+
+            try {
+                const res = await fetch(bookingApi, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        show_id: Number(showId),
+                        seats: state.selected,
+                    }),
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Seat reservation failed.');
+                }
+
+                const target = data.checkout_url || `${checkoutUrl}?reservation=${encodeURIComponent(data.reservation_token)}`;
+                window.location.href = target;
+            } catch (error) {
+                seatError.textContent = error.message;
+                reserveBtn.disabled = false;
+                await loadOccupiedSeats();
+            }
+        });
+
+        loadOccupiedSeats().catch(() => {
+            seatError.textContent = 'Unable to load seat map.';
+        });
     };
 
-    document.addEventListener('DOMContentLoaded', initialize);
+    const attachCheckout = () => {
+        const root = document.getElementById('checkout-root');
+        const payBtn = document.getElementById('pay-now-btn');
+        const errorEl = document.getElementById('checkout-error');
+
+        if (!root || !payBtn) {
+            return;
+        }
+
+        const keyId = root.dataset.keyId;
+        const amount = Number(root.dataset.amount || '0');
+        const verifyApi = root.dataset.verifyApi;
+        const reservationToken = root.dataset.reservationToken;
+
+        if (!keyId || !window.Razorpay) {
+            return;
+        }
+
+        payBtn.addEventListener('click', () => {
+            errorEl.textContent = '';
+            const options = {
+                key: keyId,
+                amount,
+                currency: 'INR',
+                name: 'CinePass',
+                description: 'Movie Ticket Booking',
+                handler: async (response) => {
+                    try {
+                        const res = await fetch(verifyApi, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                reservation_token: reservationToken,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id || '',
+                                razorpay_signature: response.razorpay_signature || '',
+                            }),
+                        });
+
+                        const data = await res.json();
+                        if (!data.success) {
+                            throw new Error(data.message || 'Payment verification failed.');
+                        }
+
+                        window.location.href = data.redirect_url;
+                    } catch (error) {
+                        errorEl.textContent = error.message;
+                    }
+                },
+                theme: { color: '#e11d48' },
+                modal: {
+                    ondismiss: () => {
+                        errorEl.textContent = 'Payment popup closed before completion.';
+                    },
+                },
+            };
+
+            const razorpay = new window.Razorpay(options);
+            razorpay.open();
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        attachHomeMovies();
+        attachBooking();
+        attachCheckout();
+    });
 })();
