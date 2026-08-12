@@ -2,11 +2,10 @@
 require_once 'config/db.php';
 include 'includes/header.php';
 
-$movie_id = $_GET['id'] ?? null;
+$movie_id = get_positive_int($_GET, 'id');
 
 if (!$movie_id) {
-    header("Location: index.php");
-    exit;
+    redirect('index.php');
 }
 
 // Fetch Movie Details
@@ -28,26 +27,26 @@ $shows = $showStmt->fetchAll();
 
 <div class="row">
     <div class="col-md-4">
-        <img src="assets/images/<?= htmlspecialchars($movie['poster']) ?>" class="img-fluid rounded shadow" onerror="this.src='https://via.placeholder.com/350x500?text=No+Poster'">
+        <img src="assets/images/<?= e($movie['poster']) ?>" class="img-fluid rounded shadow" onerror="this.src='https://via.placeholder.com/350x500?text=No+Poster'">
     </div>
     <div class="col-md-8">
-        <h2><?= htmlspecialchars($movie['title']) ?></h2>
-        <p class="badge bg-secondary"><?= htmlspecialchars($movie['genre']) ?></p>
-        <p class="text-muted"><strong>Duration:</strong> <?= htmlspecialchars($movie['duration']) ?></p>
+        <h2><?= e($movie['title']) ?></h2>
+        <p class="badge bg-secondary"><?= e($movie['genre']) ?></p>
+        <p class="text-muted"><strong>Duration:</strong> <?= e($movie['duration']) ?></p>
         <hr>
         <h5>Synopsis</h5>
-        <p><?= htmlspecialchars($movie['description']) ?></p>
+        <p><?= e($movie['description']) ?></p>
 
         <h4 class="mt-4">Available Showtimes</h4>
         <?php if(count($shows) > 0): ?>
             <div class="list-group mt-3">
                 <?php foreach($shows as $show): ?>
-                    <a href="select-seats.php?show_id=<?= $show['id'] ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <a href="select-seats.php?show_id=<?= (int) $show['id'] ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                         <div>
                             <strong>🕒 <?= date('d M Y, h:i A', strtotime($show['show_time'])) ?></strong>
                         </div>
                         <div>
-                            <span class="badge bg-success rounded-pill me-2">₹<?= $show['price'] ?></span>
+                            <span class="badge bg-success rounded-pill me-2">₹<?= number_format((float) $show['price'], 2) ?></span>
                             <button class="btn btn-sm btn-outline-primary">Select Seats</button>
                         </div>
                     </a>

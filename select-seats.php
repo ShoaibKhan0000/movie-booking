@@ -2,15 +2,11 @@
 require_once 'config/db.php';
 include 'includes/header.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-}
+require_login();
 
-$show_id = $_GET['show_id'] ?? null;
-if (!$show_id) { 
-    header("Location: index.php"); 
-    exit; 
+$show_id = get_positive_int($_GET, 'show_id');
+if (!$show_id) {
+    redirect('index.php');
 }
 
 // Fetch Show & Movie Details
@@ -38,14 +34,14 @@ foreach ($bookedRows as $row) {
 
 <div class="row justify-content-center">
     <div class="col-md-9 text-center">
-        <h3 class="fw-bold text-white"><?= htmlspecialchars($show['title']) ?></h3>
-        <p class="text-muted">Showtime: <?= date('d M Y, h:i A', strtotime($show['show_time'])) ?> | Ticket Price: ₹<?= $show['price'] ?></p>
+        <h3 class="fw-bold text-white"><?= e($show['title']) ?></h3>
+        <p class="text-muted">Showtime: <?= date('d M Y, h:i A', strtotime($show['show_time'])) ?> | Ticket Price: ₹<?= number_format((float) $show['price'], 2) ?></p>
 
         <div class="bg-secondary text-white p-2 mb-4 rounded shadow-sm fw-bold">CINEMA SCREEN THIS WAY 🎬</div>
 
         <form action="booking-confirm.php" method="POST" id="seatForm">
-            <input type="hidden" name="show_id" value="<?= $show['id'] ?>">
-            <input type="hidden" name="ticket_price" id="ticketPrice" value="<?= $show['price'] ?>">
+            <input type="hidden" name="show_id" value="<?= (int) $show['id'] ?>">
+            <input type="hidden" name="ticket_price" id="ticketPrice" value="<?= (float) $show['price'] ?>">
             
             <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
                 <?php 
@@ -55,13 +51,19 @@ foreach ($bookedRows as $row) {
                         $seatNo = $row . $i;
                         $isBooked = in_array($seatNo, $alreadyBookedSeats);
                 ?>
-                    <input type="checkbox" name="seats[]" value="<?= $seatNo ?>" id="seat_<?= $seatNo ?>" class="btn-check seat-checkbox" <?= $isBooked ? 'disabled' : '' ?> onchange="calculateTotal()">
-                    <label class="btn <?= $isBooked ? 'btn-danger opacity-50' : 'btn-outline-success' ?> px-3 py-2" for="seat_<?= $seatNo ?>"><?= $seatNo ?></label>
+                    <input type="checkbox" name="seats[]" value="<?= e($seatNo) ?>" id="seat_<?= e($seatNo) ?>" class="btn-check seat-checkbox" <?= $isBooked ? 'disabled' : '' ?> onchange="calculateTotal()">
+                    <label class="btn <?= $isBooked ? 'btn-danger opacity-50' : 'btn-outline-success' ?> px-3 py-2" for="seat_<?= e($seatNo) ?>"><?= e($seatNo) ?></label>
                 <?php 
                     endfor;
                     echo "<div class='w-100 my-1'></div>";
                 endforeach; 
                 ?>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mb-3 small">
+                <span><span class="badge bg-success-subtle border border-success text-success-emphasis me-1">&nbsp;</span>Available</span>
+                <span><span class="badge bg-danger-subtle border border-danger text-danger-emphasis me-1">&nbsp;</span>Booked</span>
+                <span><span class="badge bg-warning-subtle border border-warning text-warning-emphasis me-1">&nbsp;</span>Selected</span>
             </div>
 
             <div class="card bg-dark text-white p-3 mb-4 border-secondary shadow-sm">
@@ -79,6 +81,20 @@ function calculateTotal() {
     const checkboxes = document.querySelectorAll('.seat-checkbox:checked');
     const price = parseFloat(document.getElementById('ticketPrice').value);
     const selectedSeats = Array.from(checkboxes).map(cb => cb.value);
+    const selectedLabels = selectedSeats.map(seat => document.querySelector(`label[for="seat_${seat}"]`));
+    document.querySelectorAll('.seat-checkbox:not(:disabled)').forEach((checkbox) => {
+        const label = document.querySelector(`label[for="${checkbox.id}"]`);
+        if (label) {
+            label.classList.remove('btn-warning');
+            label.classList.add('btn-outline-success');
+        }
+    });
+    selectedLabels.forEach((label) => {
+        if (label) {
+            label.classList.remove('btn-outline-success');
+            label.classList.add('btn-warning');
+        }
+    });
     
     document.getElementById('selectedSeatsCount').innerText = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None';
     document.getElementById('totalPrice').innerText = (selectedSeats.length * price).toFixed(2);

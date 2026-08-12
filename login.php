@@ -5,11 +5,13 @@ include 'includes/header.php';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email    = trim($_POST['email']);
-    $password = $_POST['password'];
+    $email = trim((string) ($_POST['email'] ?? ''));
+    $password = (string) ($_POST['password'] ?? '');
 
     if (empty($email) || empty($password)) {
         $error = "Please fill in all fields.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Please enter a valid email address.";
     } else {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
@@ -37,20 +39,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="card-body">
                 <?php if($error): ?>
-                    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                    <div class="alert alert-danger"><?= e($error) ?></div>
                 <?php endif; ?>
 
-                <!-- Form level autocomplete off -->
-                <form action="login.php" method="POST" autocomplete="off">
+                <form action="login.php" method="POST" autocomplete="on">
                     <div class="mb-3">
-                        <label class="form-label">Email Address</label>
-                        <!-- Added autocomplete="new-email" -->
-                        <input type="email" name="email" class="form-control bg-secondary text-white border-0" autocomplete="new-email" required>
+                        <label class="form-label" for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" class="form-control bg-secondary text-white border-0" autocomplete="email" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <!-- Added autocomplete="new-password" -->
-                        <input type="password" name="password" class="form-control bg-secondary text-white border-0" autocomplete="new-password" required>
+                        <label class="form-label" for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" class="form-control bg-secondary text-white border-0" autocomplete="current-password" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 fw-bold">Login</button>
                 </form>
