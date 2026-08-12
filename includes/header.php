@@ -1,8 +1,4 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-?>
+<?php require_once __DIR__ . '/app.php'; ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -11,15 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <title>CineTicket - Premium Cinema Experience</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #0f1015; color: #e1e1e1; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar { background-color: #16181f !important; border-bottom: 1px solid #2a2e3d; }
-        .movie-card { background: #181a20; border: 1px solid #2a2e3d; transition: transform 0.3s ease; }
-        .movie-card:hover { transform: translateY(-5px); border-color: #ff3366; }
-        .movie-card img { height: 380px; object-fit: cover; }
-        .btn-primary { background-color: #ff3366; border-color: #ff3366; }
-        .btn-primary:hover { background-color: #e02e5b; border-color: #e02e5b; }
-    </style>
+    <link href="assets/css/app.css" rel="stylesheet">
 </head>
 <body>
 
@@ -38,7 +26,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <?php endif; ?>
             <li class="nav-item"><a class="nav-link text-white" href="my-bookings.php">My Bookings</a></li>
             <li class="nav-item ms-2">
-                <a class="btn btn-outline-danger btn-sm px-3" href="logout.php">Logout (<?= htmlspecialchars($_SESSION['user_name']) ?>)</a>
+                <a class="btn btn-outline-danger btn-sm px-3" href="logout.php">Logout (<?= e($_SESSION['user_name']) ?>)</a>
             </li>
         <?php else: ?>
             <li class="nav-item"><a class="nav-link text-white" href="login.php">Login</a></li>
@@ -49,3 +37,14 @@ if (session_status() === PHP_SESSION_NONE) {
   </div>
 </nav>
 <div class="container my-4">
+    <?php
+    $flash = consume_flash();
+    if ($flash):
+        $allowedTypes = ['success', 'danger', 'warning', 'info'];
+        $flashType = in_array($flash['type'], $allowedTypes, true) ? $flash['type'] : 'info';
+    ?>
+        <div class="alert alert-<?= e($flashType) ?> alert-dismissible fade show" role="alert">
+            <?= e($flash['message']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>

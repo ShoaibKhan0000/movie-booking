@@ -19,19 +19,22 @@ $movies = $stmt->fetchAll();
         <?php foreach($movies as $movie): ?>
             <div class="col-md-3 mb-4">
                 <div class="card h-100 shadow-sm movie-card">
-                    <img src="assets/images/<?= htmlspecialchars($movie['poster']) ?>" class="card-img-top" alt="<?= htmlspecialchars($movie['title']) ?>" onerror="this.src='https://via.placeholder.com/300x400?text=No+Poster'">
+                    <img src="assets/images/<?= e($movie['poster']) ?>" class="card-img-top" alt="<?= e($movie['title']) ?>" onerror="this.src='https://via.placeholder.com/300x400?text=No+Poster'">
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title fw-bold"><?= htmlspecialchars($movie['title']) ?></h5>
-                        <p class="card-text text-muted mb-1"><small><strong>Genre:</strong> <?= htmlspecialchars($movie['genre']) ?></small></p>
-                        <p class="card-text text-muted mb-3"><small><strong>Duration:</strong> <?= htmlspecialchars($movie['duration']) ?></small></p>
-                        <a href="movie-details.php?id=<?= $movie['id'] ?>" class="btn btn-primary mt-auto w-100">Book Tickets</a>
+                        <h5 class="card-title fw-bold"><?= e($movie['title']) ?></h5>
+                        <p class="card-text text-muted mb-1"><small><strong>Genre:</strong> <?= e($movie['genre']) ?></small></p>
+                        <p class="card-text text-muted mb-3"><small><strong>Duration:</strong> <?= e($movie['duration']) ?></small></p>
+                        <a href="movie-details.php?id=<?= (int) $movie['id'] ?>" class="btn btn-primary mt-auto w-100">Book Tickets</a>
                     </div>
                 </div>
             </div>
         <?php endforeach; ?>
     <?php else: ?>
         <div class="col-12">
-            <div class="alert alert-info">No movies available right now. Please check back later or add movies from Admin Panel.</div>
+            <div class="card p-4 text-center">
+                <h5 class="mb-2">No movies available right now</h5>
+                <p class="text-muted mb-0">Please check back later or add movies from the admin panel.</p>
+            </div>
         </div>
     <?php endif; ?>
 </div>

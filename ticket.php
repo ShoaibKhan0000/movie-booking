@@ -2,12 +2,12 @@
 require_once 'config/db.php';
 include 'includes/header.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-}
+require_login();
 
-$booking_id = $_GET['id'] ?? null;
+$booking_id = get_positive_int($_GET, 'id');
+if (!$booking_id) {
+    redirect('my-bookings.php');
+}
 
 $stmt = $pdo->prepare("
     SELECT b.*, s.show_time, s.price, m.title, m.genre, m.poster, u.name as user_name 
@@ -45,19 +45,19 @@ $qr_data    = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" .
         <div class="card ticket-card shadow-lg p-3">
             <div class="row g-0 align-items-center">
                 <div class="col-md-4 text-center">
-                    <img src="assets/images/<?= htmlspecialchars($ticket['poster']) ?>" class="img-fluid rounded-start p-2" style="max-height: 280px;" onerror="this.src='https://via.placeholder.com/200x300?text=CineTicket'">
+                    <img src="assets/images/<?= e($ticket['poster']) ?>" class="img-fluid rounded-start p-2" style="max-height: 280px;" onerror="this.src='https://via.placeholder.com/200x300?text=CineTicket'">
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h3 class="card-title fw-bold text-warning mb-0"><?= htmlspecialchars($ticket['title']) ?></h3>
-                            <span class="badge bg-danger"><?= htmlspecialchars($ticket['genre']) ?></span>
+                            <h3 class="card-title fw-bold text-warning mb-0"><?= e($ticket['title']) ?></h3>
+                            <span class="badge bg-danger"><?= e($ticket['genre']) ?></span>
                         </div>
                         <p class="text-muted small">Booking ID: <strong><?= $booking_ref ?></strong></p>
                         <hr class="border-secondary">
                         <div class="row text-white-50">
-                            <div class="col-6 mb-2"><small>Name:</small><br><strong class="text-white"><?= htmlspecialchars($ticket['user_name']) ?></strong></div>
-                            <div class="col-6 mb-2"><small>Seats:</small><br><strong class="text-success"><?= htmlspecialchars($ticket['seats_booked']) ?></strong></div>
+                            <div class="col-6 mb-2"><small>Name:</small><br><strong class="text-white"><?= e($ticket['user_name']) ?></strong></div>
+                            <div class="col-6 mb-2"><small>Seats:</small><br><strong class="text-success"><?= e($ticket['seats_booked']) ?></strong></div>
                             <div class="col-6"><small>Showtime:</small><br><strong class="text-white"><?= date('d M Y, h:i A', strtotime($ticket['show_time'])) ?></strong></div>
                             <div class="col-6"><small>Amount Paid:</small><br><strong class="text-warning">₹<?= number_format($ticket['total_amount'], 2) ?></strong></div>
                         </div>
