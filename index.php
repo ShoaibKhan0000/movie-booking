@@ -2,41 +2,55 @@
 require_once 'config/db.php';
 include 'includes/header.php';
 
-// Fetch all available movies
-$stmt = $pdo->query("SELECT * FROM movies ORDER BY id DESC");
-$movies = $stmt->fetchAll();
+$locationsStmt = $pdo->query("SELECT DISTINCT location FROM theaters WHERE is_active = 1 ORDER BY location ASC");
+$locations = $locationsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+$moviesStmt = $pdo->query("SELECT id, title, genre, duration, language, rating, ticket_price, poster_url FROM movies WHERE is_active = 1 ORDER BY id ASC LIMIT 10");
+$movies = $moviesStmt->fetchAll();
 ?>
 
-<div class="row mb-4">
-    <div class="col-md-12">
-        <h2 class="fw-bold">Now Showing 🎥</h2>
-        <p class="text-muted">Explore latest movies and book your tickets instantly.</p>
+<section class="hero-section rounded-4 overflow-hidden mb-5">
+    <div class="hero-overlay p-5 p-lg-6">
+        <span class="badge bg-danger-subtle text-danger fw-semibold mb-3">CinePass · Delhi NCR</span>
+        <h1 class="display-5 fw-bold mb-3">Book real shows across Delhi NCR cinemas</h1>
+        <p class="lead text-white-50 mb-4">Discover trending movies, pick your theater, select seats on a curved screen map, and pay securely with Razorpay.</p>
+        <a href="#movie-list" class="btn btn-danger btn-lg rounded-pill px-4 book-hero-btn">Book Now</a>
     </div>
-</div>
+</section>
 
-<div class="row">
-    <?php if(count($movies) > 0): ?>
-        <?php foreach($movies as $movie): ?>
+<section id="movie-list" class="mb-4" data-page="home">
+    <div class="row g-3 mb-3">
+        <div class="col-md-8">
+            <input type="search" id="movie-search" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Search movie by title or genre...">
+        </div>
+        <div class="col-md-4">
+            <select id="location-filter" class="form-select form-select-lg bg-dark text-white border-secondary">
+                <option value="">All Locations</option>
+                <?php foreach ($locations as $location): ?>
+                    <option value="<?= e($location) ?>"><?= e($location) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="row" id="movie-grid" data-api="<?= e(app_url('/api/get_movies.php')) ?>">
+        <?php foreach ($movies as $movie): ?>
             <div class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm movie-card">
-                    <img src="assets/images/<?= e($movie['poster']) ?>" class="card-img-top" alt="<?= e($movie['title']) ?>" onerror="this.src='https://via.placeholder.com/300x400?text=No+Poster'">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title fw-bold"><?= e($movie['title']) ?></h5>
-                        <p class="card-text text-muted mb-1"><small><strong>Genre:</strong> <?= e($movie['genre']) ?></small></p>
-                        <p class="card-text text-muted mb-3"><small><strong>Duration:</strong> <?= e($movie['duration']) ?></small></p>
-                        <a href="movie-details.php?id=<?= (int) $movie['id'] ?>" class="btn btn-primary mt-auto w-100">Book Tickets</a>
+                <article class="movie-card h-100">
+                    <img src="<?= e($movie['poster_url']) ?>" alt="<?= e($movie['title']) ?> poster" class="movie-poster" loading="lazy">
+                    <div class="p-3">
+                        <h3 class="h5 mb-1"><?= e($movie['title']) ?></h3>
+                        <p class="small text-secondary mb-1"><?= e($movie['genre']) ?></p>
+                        <p class="small text-secondary mb-2"><?= e($movie['duration']) ?> · <?= e($movie['language']) ?></p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-info-subtle text-info">₹<?= number_format((float) $movie['ticket_price'], 0) ?></span>
+                            <a class="btn btn-danger btn-sm" href="<?= e(app_url('/movie_details.php?id=' . (int) $movie['id'])) ?>">View Shows</a>
+                        </div>
                     </div>
-                </div>
+                </article>
             </div>
         <?php endforeach; ?>
-    <?php else: ?>
-        <div class="col-12">
-            <div class="card p-4 text-center">
-                <h5 class="mb-2">No movies available right now</h5>
-                <p class="text-muted mb-0">Please check back later or add movies from the admin panel.</p>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
+    </div>
+</section>
 
 <?php include 'includes/footer.php'; ?>
